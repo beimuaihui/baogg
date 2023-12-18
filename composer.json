@@ -1,0 +1,65 @@
+{
+  "name": "beimuaihui/baogg",
+  "type": "library",
+  "description": "Baogg is a PHP micro framework that helps you quickly write fast-security-simple web applications and APIs,Slim php framework extensions",
+  "keywords": [
+    "framework",
+    "micro",
+    "api"
+  ],
+  "homepage": "https://xyzim.com",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Beimuaihui",
+      "email": "beimuaihui@sohu.com",
+      "homepage": "https://xyzim.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "slim/slim": "^4.10.0",
+    "monolog/monolog": "^2.8.0",
+    "robmorgan/phinx": "^0.12.12",
+    "firebase/php-jwt": "^6.9.0",
+    "ezyang/htmlpurifier": "^v4.16.0",
+    "slim/psr7": "^1.5.0",
+    "slim/http": "^1.2.0",
+    "aura/sql": "^5.0.1",
+    "aura/sqlquery": "^3.0.0",
+    "godruoyi/php-snowflake": "^1.1.1",
+    "aws/aws-sdk-php": "3.269.14",
+    "gregwar/captcha": "1.*",
+    "overtrue/pinyin": "^5.0",
+    "php-webdriver/webdriver": "^1.13",
+    "php-ffmpeg/php-ffmpeg": "^1.1",
+    "workerman/workerman": "^4.1",
+    "guzzlehttp/guzzle": "^7.8.0"
+  },
+  "require-dev": {
+    "pimple/pimple": "^3.5.0",
+    "squizlabs/php_codesniffer": "^3.7.1",
+    "phpunit/phpunit": "^9.5.25",
+    "php-coveralls/php-coveralls": "^2.5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Baogg\\": "src",
+      "App\\": "app/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": [
+      "@phpunit",
+      "@phpcs"
+    ],
+    "phpunit": "php vendor/bin/phpunit",
+    "phpcs": "php vendor/bin/phpcs",
+    "start": "php -S localhost:8888 -t public public/index.php"
+  }
+}
