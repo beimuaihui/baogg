@@ -44,8 +44,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Baogg\\": "src",
-      "App\\": "app/"
+      "Baogg\\": "src"
     }
   },
   "autoload-dev": {
