@@ -3,7 +3,7 @@
 /**
  * beimuaihui System
  * Copyright(c) 2011-2020 beimuaihui.
- * @license    http://www.gnu.org/licenses/gpl.html     This software Under GPL V3 License 
+ * @license    http://www.gnu.org/licenses/gpl.html     This software Under GPL V3 License
  * beimuaihui@gmail.com
  * https://github.com/beimuaihui
  * $Id: File.php 292 2011-08-12 08:37:34Z beimuaihui@gmail.com $
@@ -13,7 +13,7 @@ namespace Baogg;
 
 class File
 {
-    static function ReadDirFile($dir)
+    public static function ReadDirFile($dir)
     {
         $files = array();
 
@@ -104,13 +104,15 @@ class File
                 //Send to standard output
                 if (isset($HTTP_SERVER_VARS['SERVER_NAME'])) {
                     //We send to a browser
-                    if (isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']) and strpos($HTTP_SERVER_VARS['HTTP_USER_AGENT'], 'MSIE'))
+                    if (isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']) and strpos($HTTP_SERVER_VARS['HTTP_USER_AGENT'], 'MSIE')) {
                         Header('Content-Type: application/force-download');
-                    else
+                    } else {
                         Header('Content-Type: application/octet-stream');
-                    if (headers_sent())
+                    }
+                    if (headers_sent()) {
                         //self::Error('Some data has already been output to browser, can\'t send PDF file');
                         Header('Content-Length: ' . filesize($name));
+                    }
                     Header('Content-disposition: inline; filename=' . $fileName);
                 }
                 ob_clean();
@@ -119,12 +121,14 @@ class File
                 break;
             case 'D':
                 //Download file
-                if (isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']) and strpos($HTTP_SERVER_VARS['HTTP_USER_AGENT'], 'MSIE'))
+                if (isset($HTTP_SERVER_VARS['HTTP_USER_AGENT']) and strpos($HTTP_SERVER_VARS['HTTP_USER_AGENT'], 'MSIE')) {
                     Header('Content-Type: application/force-download');
-                else
+                } else {
                     Header('Content-Type: application/octet-stream');
-                if (headers_sent())
-                    echo ('Some data has already been output to browser, can\'t send PDF file');
+                }
+                if (headers_sent()) {
+                    echo('Some data has already been output to browser, can\'t send PDF file');
+                }
 
                 Header('Content-Length: ' . filesize($name));
                 Header('Content-disposition: attachment; filename=' . $fileName);
@@ -150,31 +154,35 @@ class File
     }
 
     //windows maxium filename length is 255,and not including following 9 chars, '/','?','\\','*','|','"','<','>',':'
-    static function fixFileName($name = '')
+    public static function fixFileName($name = '')
     {
         return $name ? substr(str_replace(array(" ", '/', '?', '\\', '*', '|', '"', '<', '>', ':'), "_", trim($name)), 0, 255) : date("YmdHis") . mt_rand();
     }
 
     /**
-     * 
+     *
      * Transfrom relative path into absolute URL using PHP
      * @param relative path $rel
      * @param hostname $base
      * @return unknown|string
      */
-    static function fixUrlName($rel, $base)
+    public static function fixUrlName($rel, $base)
     {
 
 
         /* return if already absolute URL */
 
-        if (parse_url($rel, PHP_URL_SCHEME) != '') return $rel;
+        if (parse_url($rel, PHP_URL_SCHEME) != '') {
+            return $rel;
+        }
 
         /* queries and anchors */
-        if ($rel[0] == '#' || $rel[0] == '?') return $base . $rel;
+        if ($rel[0] == '#' || $rel[0] == '?') {
+            return $base . $rel;
+        }
 
         /* parse base URL and convert to local variables:
-		$scheme, $host, $path */
+        $scheme, $host, $path */
         extract(parse_url($base));
 
         if (strpos($rel, '//' . $host) === 0) {
@@ -188,7 +196,9 @@ class File
         $path = preg_replace('#/[^/]*$#', '', $path);
 
         /* destroy path if relative url points to root */
-        if ($rel[0] == '/') $path = '';
+        if ($rel[0] == '/') {
+            $path = '';
+        }
 
         /* dirty absolute URL */
         $abs = "$host$path/$rel";
@@ -210,9 +220,9 @@ class File
             $mime = finfo_file($finfo, $file_name);
             finfo_close($finfo);
             return $mime;
-        } else if (function_exists("mime_content_type")) {
+        } elseif (function_exists("mime_content_type")) {
             return mime_content_type($file_name);
-        } else if (!stristr(ini_get("disable_functions"), "shell_exec")) {
+        } elseif (!stristr(ini_get("disable_functions"), "shell_exec")) {
             // http://stackoverflow.com/a/134930/1593459
             $file = escapeshellarg($file_name);
             $mime = shell_exec("file -bi " . $file);
@@ -224,7 +234,10 @@ class File
 
     public static function getSetting($key = '')
     {
-        $path = \Baogg\App::isDev() ?  realpath(__DIR__ . '/../config/settings_local.php') : realpath(__DIR__ . '/../config/settings.php');
+        if(!defined('BAOGG_ROOT')) {
+            throw new \Exception("Please define BAOGG_ROOT path to your app directory path");
+        }
+        $path = \Baogg\App::isDev() ? realpath(BAOGG_ROOT. 'config/settings_local.php') : realpath(BAOGG_ROOT. 'config/settings.php');
         //error_log(__FILE__ . __LINE__ . " path = {$path}");
         $arr_setting = include $path;
 

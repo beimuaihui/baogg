@@ -38,7 +38,7 @@ class Db
 
 
             self::$arr_db[$key] =  new ExtendedPdo(
-                $db['driver'] . ':host=' . $db['host'] . ';dbname=' . $db['dbname'],
+                "{$db['driver']}:host={$db['host']}".(isset($db['port']) && $db['port'] ? ";port={$db['port']}" : '').";dbname={$db['dbname']}",
                 $db['user'],
                 $db['password'],
                 [
@@ -52,7 +52,7 @@ class Db
 
             if ($debug) {
                 //$logger = \Baogg\App::getInstance()->getContainer()->logger;
-                // error_log(__FILE__.__LINE__.'<pre> ; db setting = '.var_export($db, true));
+                // error_log(__FILE__.__LINE__.'<pre> ; db key = '.$key.'; db setting = '.var_export($db, true));
 
 
                 //self::$arr_db[$key]->setProfiler(new Profiler(\Baogg\App::getInstance()->getContainer()['logger']));
