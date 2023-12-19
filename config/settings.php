@@ -10,6 +10,7 @@ ini_set('upload_max_filesize', '20M');
 ini_set('post_max_size', '21M');
 
 // Timezone
+/* 
 date_default_timezone_set('Asia/Shanghai');
 
 defined('BAOGG_FILE_URL') || define('BAOGG_FILE_URL', 'https://api.xyzim.com');
@@ -20,10 +21,10 @@ defined('BAOGG_NOW') or define('BAOGG_NOW', time());
 defined('BAOGG_HOST') or define('BAOGG_HOST', 'https://api.xyzim.com/');
 defined('BAOGG_BASE_URL') or define('BAOGG_BASE_URL', '');
 defined('BAOGG_VIEW') or define('BAOGG_VIEW', BAOGG_ROOT . 'app' . DS . 'View' . DS);
-
+ */
 
 $settings =  [
-    'settings' => [ //dynamic,need change
+    /*'settings' => [ //dynamic,need change
         'token_key' => 'ce2bfe79-92c9-11e7-8cd9-2c4d54d7f5fe',
         'url_key' => '52798c41-0fda-11e8-9696-2c4d54d7f5fe',
         'pwd_key' => '27c9e1ff-6bbf-11e9-8b8c-d017c287c1a5',
@@ -245,7 +246,7 @@ $settings =  [
             'expire_time' => 30 * 60, //ordering status valid period seconds time
         ],
 
-    ],
+    ],*/
 
 ];
 

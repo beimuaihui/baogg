@@ -239,6 +239,11 @@ class File
         }
         $path = \Baogg\App::isDev() ? realpath(BAOGG_ROOT. 'config/settings_local.php') : realpath(BAOGG_ROOT. 'config/settings.php');
         //error_log(__FILE__ . __LINE__ . " path = {$path}");
+
+        if(!$path) {
+            throw new \Exception("Please define create your setting path to: ".(\Baogg\App::isDev() ? (BAOGG_ROOT. 'config/settings_local.php') : (BAOGG_ROOT. 'config/settings.php')));
+        }
+
         $arr_setting = include $path;
 
         $ret = $arr_setting;
