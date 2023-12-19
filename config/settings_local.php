@@ -126,7 +126,10 @@ $settings =  [
         ],
         'minio' => [
             'endpoint' => 'http://minio.my.xyzim.com',
-
+            'key' => 'admin',
+            'secret' => '',
+            'pubBucket' => 'pub',
+            'privBucket' => 'priv',
         ],
         'third_party' => [
             'weapp' => [

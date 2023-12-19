@@ -8,10 +8,7 @@ use Aws\S3\MultipartUploader;
 
 class Minio
 {
-    protected static $key = "admin";
-    protected static $secret = "a0d8e80767b811ed9a270242ac030004";
-    protected static $bucket = "priv";
-    protected static $pubBucket = "pub";
+
 
     /** @var \Aws\S3\S3Client　*/
     protected static $s3Client;
@@ -29,8 +26,8 @@ class Minio
                 'use_path_style_endpoint' => true,
                 //'debug'   => true,
                 'credentials' => [
-                    'key'    => self::$key,
-                    'secret' => self::$secret,
+                    'key'    => self::getKey(),
+                    'secret' => self::getSecret(),
                 ],
             ]);
         }
@@ -74,7 +71,7 @@ class Minio
     public static function upLoadFile($file, $object, $is_public = false)
     {
         $s3Client = self::initS3Client();
-        $bucket = $is_public ? self::$pubBucket : self::$bucket;
+        $bucket = $is_public ? self::getPubBucket():self::getPrivBucket();
         $uploader = new MultipartUploader($s3Client, $file, [
             'bucket' => $bucket,
             'key' => $object,
@@ -96,7 +93,7 @@ class Minio
     public static function getURL($object, $is_public = false, $seconds = 20 * 60)
     {
         $s3Client = self::initS3Client();
-        $bucket = $is_public ? self::$pubBucket : self::$bucket;
+        $bucket = $is_public ?  self::getPubBucket():self::getPrivBucket();
 
         $cmd = $s3Client->getCommand('GetObject', [
             'Bucket' => $bucket,
@@ -123,10 +120,10 @@ class Minio
         ]);
         return $result;
     }
-    public static function deleteObject($object)
+    public static function deleteObject($object, $is_public = false)
     {
         $s3Client = self::initS3Client();
-        $bucket = self::$bucket;
+        $bucket = $is_public ?  self::getPubBucket():self::getPrivBucket();
         $result = $s3Client->deleteObject([
             'Bucket' => $bucket,
             'Key' => $object,
@@ -140,6 +137,28 @@ class Minio
         return \Baogg\File::getSetting('settings.minio.endpoint');
     }
 
+    public static function getKey()
+    {
+        return \Baogg\File::getSetting('settings.minio.key');
+    }
+
+    public static function getSecret()
+    {
+        return \Baogg\File::getSetting('settings.minio.secret');
+    }
+
+    public static function getPubBucket()
+    {
+        return \Baogg\File::getSetting('settings.minio.pubBucket');
+    }
+
+    public static function getPrivBucket()
+    {
+        return \Baogg\File::getSetting('settings.minio.privBucket');
+    }
+
+
+
     /**
      * 检测文件是否存在
      *
@@ -150,7 +169,7 @@ class Minio
     public static function isExists($object, $is_public = false)
     {
         $s3Client = self::initS3Client();
-        $bucket = $is_public ? self::$pubBucket : self::$bucket;
+        $bucket = $is_public ?  self::getPubBucket():self::getPrivBucket();
 
         return $s3Client->doesObjectExistV2($bucket, $object);
     }
