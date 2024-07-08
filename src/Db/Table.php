@@ -1212,4 +1212,21 @@ class Table
         }
         return $this->_slave_db;
     }
+    
+        /**
+     * 获取当前实例
+     *
+     * @return $this
+     */
+    public static function getInstance() {
+
+        static $instance = [];
+        $called_class = get_called_class();
+
+        if( !isset( $instance[ $called_class ] ) ) {
+            $instance[$called_class] = new $called_class();
+        }
+
+        return $instance[ $called_class ];
+    }
 }

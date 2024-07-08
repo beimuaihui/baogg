@@ -138,6 +138,34 @@ class Db
     {
         self::$trans_level--;
     }
+        public function beginTransaction($key = ''){
+        if(!self::getTransLevel($key)){
+            $level = self::increTransLevel($key);
+            return self::getDb($key)->beginTransaction();
+        }
+        $level = self::increTransLevel($key);
+        self::getDb($key)->exec('SAVEPOINT trans'.$level);
+        return $level >= 0;
+    }
+
+    public function commit($key = ''){
+        $level = self::DecreTransLevel($key);
+        if(!$level){
+            return self::getDb($key)->commit();
+        }
+        return $level>=0;
+    }
+
+    public function rollBack($key = ''){
+        $level = self::DecreTransLevel($key);
+        if($level)
+        {
+            self::getDb($key)->exec('ROLLBACK TO trans'.($level + 1));
+            return true;
+        }
+        return self::getDb($key)->rollback();
+    }
+
     public static function getTablePrefix($key)
     {
         $key = isset(self::$key_map[$key]) ? self::$key_map[$key] : strtolower($key);

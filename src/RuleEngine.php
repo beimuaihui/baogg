@@ -123,8 +123,17 @@ class RuleEngine
     }
 
 
-    public function check($where=array(), $form_value=array(), $arr_var=array(), $depth=0)
-    {
+    function check($where=array(),$form_value=array(),$arr_var=array(),$depth=0){
+        if(!$where){
+            $where = $this->where[$this->is_consume];
+        }
+        if(!$form_value){
+            $form_value = $this->form_value;
+        }
+        if(!$arr_var){
+            $arr_var = $this->arr_var;
+        }
+        //error_log(__FILE__.__LINE__." \n form_value = ".var_export($form_value,true));
         $result = true;
         foreach ($where as $op=>$sub_where) {
             if (trim($op) == 'or') {
@@ -170,20 +179,48 @@ class RuleEngine
         $simple_key =  substr($key, 0, strrpos($key, '_'));
         error_log(__FILE__.__LINE__." \n form_value=".var_export($form_value, true));
 
-        if (count($v_sub_where) == 1) {
-            error_log(__FILE__.__LINE__." \n key={$key};simple_key={$simple_key};variable={$arr_var[$simple_key]};target={$form_value[$key]}");
+        if(count($v_sub_where) == 1){
+            if(!isset($arr_var[$simple_key])) {
+                if (isset($this->arr_var[$simple_key])) {
+                    $arr_var[$simple_key] = $this->arr_var[$simple_key];
+                } else {
+                    //error_log(__FILE__.__LINE__." \n get var combine_key={$key}");
+                    $arr_var[$simple_key] = $this->getVar($simple_key);
+                }
+            }
+            if(!isset($form_value[$key])){
+                $form_value[$key] = $v_sub_where[$key];
+            }
+            //error_log(__FILE__.__LINE__." \n key={$key};simple_key={$simple_key};variable={$arr_var[$simple_key]};target={$form_value[$key]}");
             return $arr_var[$simple_key] >= $form_value[$key];
         } else {
             $index = 0;
             $combine_key = '';
             $form_key = key($v_sub_where);
-            foreach ($v_sub_where as $key=>$v) {
-                $simple_key =  substr($key, 0, strrpos($key, '_'));
+            foreach($v_sub_where as $key=>$v){
+                if($index == 0){
+                    $init_value = $v;
+                }
+                $simple_key =  substr($key,0,strrpos($key,'_'));
 
                 $combine_key .= $index==0?$simple_key:'_'.$simple_key.'-'.$form_value[$key];
                 $index ++;
             }
-            error_log(__FILE__.__LINE__." \n key={$key};simple_key={$simple_key};combine_key={$combine_key}; variable={$arr_var[$combine_key]};target={$form_value[$form_key]}");
+
+            //error_log(__FILE__.__LINE__." \n arr_var=".var_export($arr_var,true));
+            if(!isset($arr_var[$combine_key])) {
+                if (isset($this->arr_var[$combine_key])) {
+                    $arr_var[$combine_key] = $this->arr_var[$combine_key];
+                } else {
+                    //error_log(__FILE__.__LINE__." \n get var combine_key={$combine_key}");
+                    $arr_var[$combine_key] = $this->getVar($combine_key);
+                }
+            }
+            if(!isset($form_value[$form_key])){
+                $form_value[$form_key] = $v_sub_where[$form_key];
+            }
+            //error_log(__FILE__.__LINE__." \n key={$key};simple_key={$simple_key};combine_key={$combine_key}; variable={$arr_var[$combine_key]};target={$form_value[$form_key]}");
+
             return $arr_var[$combine_key] >= $form_value[$form_key];
         }
     }
@@ -253,6 +290,175 @@ class RuleEngine
         return $ret;
     }
 
+    /**
+     * @param $where 规则
+     * @param $form_value　设置的目标值
+     * @param $arr_var　统计计算值
+     * @param $arr_label　显示标签内容　
+     * @param $depth　深度
+     * @return string
+     */
+    function apiShow($where=array(),$form_value=array(),$arr_var=array(),$arr_label=array(),$depth=0){
+        if(!$where){
+            $where = $this->where[$this->is_consume];
+        }
+        if(!$form_value){
+            $form_value = $this->form_value;
+        }
+        if(!$arr_label){
+            $arr_label = $this->arr_label;
+        }
+        if(!$arr_var){
+            $arr_var = $this->arr_var;
+        }
+
+        $arr_head = array('一','二','三','四','五','六','七','八','九','十');
+
+        $ret = array();
+        foreach($where as $op=>$sub_where){  // just get op value
+            if(trim($op) == 'or'){
+                $result = false;
+                $or_index = 0;
+
+                foreach($sub_where as $k_sub_where=>$v_sub_where){ // travel op value item
+                    if($depth<=0) {
+                        $cur_ret = array('title' => '标准' . $arr_head[$or_index], 'items' => array());
+
+                        if(isset($v_sub_where['and']) || isset($v_sub_where['or'])){
+                            $cur_ret['items'] =  array_merge($cur_ret['items'],$this->apiShow($v_sub_where,$form_value,$arr_var,$arr_label,$depth+1));
+
+                        }else{
+                            //$ret .= $or_index==0?'<div>':';或者';
+                            $row_cur = $this->apiShowRow($v_sub_where,$form_value,$arr_var ,$arr_label,$or_index==0?'':'或者');
+                            if($row_cur){
+                                $cur_ret['items'][]  = $row_cur;
+                            }
+                        }
+                        $ret[] = $cur_ret;
+                    }else{
+                        //error_log(__FILE__.__LINE__." \n v_sub_where=".var_export($v_sub_where,true));
+                        if(isset($v_sub_where['and']) || isset($v_sub_where['or'])){
+                            $ret =  array_merge($ret,$this->apiShow($v_sub_where,$form_value,$arr_var,$arr_label,$depth+1));
+
+                        }else{
+                            //$ret .= $or_index==0?'<div>':';或者';
+                            $row_cur = $this->apiShowRow($v_sub_where,$form_value,$arr_var ,$arr_label,$or_index==0?'':'或者');
+                            if($row_cur){
+                                $ret[] = $row_cur;
+                            }
+
+
+                        }
+                    }
+
+                    if($depth<=0){
+                        //$ret .= '<br />';
+                    }
+                    $or_index ++;
+                }
+                //$ret .= "</div>";
+
+
+            }else if(trim($op) == 'and'){
+                foreach($sub_where as $v_sub_where){
+                    //error_log(__FILE__.__LINE__." \n v_sub_where=".var_export($v_sub_where,true));
+                    if(isset($v_sub_where['and']) || isset($v_sub_where['or'])){
+                        $ret =    array_merge($ret,$this->apiShow($v_sub_where,$form_value,$arr_var,$arr_label,$depth+1));
+                    }else{
+                        $row_cur = $this->apiShowRow($v_sub_where,$form_value,$arr_var,$arr_label);
+                        if($row_cur){
+                            $ret[] = $row_cur;
+                        }
+                    }
+                }
+            }
+        }
+        if($depth<=0 && $ret && $ret[0] && !isset($ret[0]['items'])) {
+            $ret = array(array('title' => '', 'items' => $ret));
+        }
+
+        return $ret;
+    }
+
+    function apiShowRow($v_sub_where = array(),$form_value=array(),$arr_var=array(),$arr_label=array(),$label_pre=''){
+        $ret = '';
+        $label_param_name = '';
+        $var_param_name = '';
+        $form_param_name = '';
+        $index = 0 ;
+        $arr_tr = array();
+        foreach($v_sub_where as $param_name=>$param_value) {
+
+            $simple_param_name = substr($param_name, 0, strrpos($param_name, '_'));
+            $label_param_name .= ($index == 0 ? $simple_param_name : '_' . $simple_param_name);
+            $form_param_name .=  ($index == 0 ? $param_name : '' );
+
+            //error_log(__FILE__.__LINE__." \n param_name={$param_name};form_value=".var_export($form_value,true));
+
+            $var_param_name .=  ($index == 0 ? $simple_param_name : '_' . $simple_param_name.'-'.$form_value[$param_name]);
+
+            if (isset($arr_label[$simple_param_name]['option'])) {
+                $arr_tr = array('{' . $simple_param_name . '2}' => $arr_label[$simple_param_name]['option'][$form_value[$param_name]]);
+            }
+            $index++;
+        }
+        //error_log(__FILE__.__LINE__." \n label_param_name={$label_param_name}; var_param_name={$var_param_name};form_param_name={$form_param_name}");
+
+        $title = $arr_label[$label_param_name]['title'];
+        if($arr_tr){
+            $title = strtr($title,$arr_tr);
+        }
+
+        if(isset($arr_var[$var_param_name])){
+            $var = $arr_var[$var_param_name];
+        }else if(isset($this->arr_var[$var_param_name])){
+            $var = $this->arr_var[$var_param_name];
+        }else{
+            //error_log(__FILE__.__LINE__." \n var_param_name={$var_param_name}");
+            $var = $this->getVar($var_param_name);
+        }
+        if(!isset($form_value[$form_param_name])){
+            $form_value[$form_param_name] = $v_sub_where[$form_param_name];
+        }
+        $setting = $form_value[$form_param_name];
+        if($setting <=0 ){
+            return array();
+        }
+
+        $perc = bcdiv(bcmul($var,100),$setting);
+        $perc  = $perc>100?'100':$perc;
+
+        // 个人代理商级别，个人会员等级目标全部改成1        
+        if(in_array($simple_param_name,['myCommisionLevel','myIsConsume'])){
+            if($var >= $setting){
+                $var = "1";
+                $setting = "1";
+            }else{
+                $var = "0";
+                $setting = "1";
+            }
+            $perc = bcdiv(bcmul($var,100),$setting);
+            $perc  = $perc>100?'100':$perc;
+        } 
+       
+
+        return array('percent'=>$perc,'title'=>$label_pre.$title,'cur_value'=>$var,'setting_value'=>$setting,'unit'=>$arr_label[$label_param_name]['unit']);
+
+        return '<div class="msg_box">
+					<div class="prograss_bar">
+						<div class="Percentage" style="width:'.$perc.'%;max-width:100%;min-width:0;"></div>
+					</div>
+					<div class="table msg" style="font-size:11px;">
+						<p class="cl_o p04">'.$label_pre.$title.'</p>
+						<p class="cl_o p05">'.$var.'/'.$setting.$arr_label[$label_param_name]['unit'].'</p>
+					</div>
+				</div>';
+        //return "<br /> title={$title};perc ={$perc}%; var={$var};setting={$setting};unit={$arr_label[$label_param_name]['unit']}";
+
+
+
+    }
+    
     public function showRow($v_sub_where = array(), $form_value=array(), $arr_var=array(), $arr_label=array(), $label_pre='')
     {
         $ret = '';
