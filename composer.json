@@ -17,7 +17,7 @@
     }
   ],
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.3",
     "slim/slim": "^4.10.0",
     "monolog/monolog": "^2.8.0",
     "robmorgan/phinx": "^0.12.12",

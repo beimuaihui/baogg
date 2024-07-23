@@ -8,7 +8,7 @@
  * $Id: File.php 240 2011-06-13 13:02:06Z beimuaihui $
  */
 namespace Baogg\File;
-class Xls extends Baogg\File
+class Xls extends \Baogg\File
 {
     static function formatContent($content,$filename='') {
 		//header ( 'Content-type: application/doc' );
@@ -42,4 +42,41 @@ class Xls extends Baogg\File
 		file_put_contents(BAOGG_UPLOAD_DIR.$dir.$filename, $content);
 		return BAOGG_FILE_URL.$dir.$filename;
 	}
+
+    /**
+     * export php array to excel file
+     *
+     * @param array $rs_data two dimension array,such as db search result
+     * @param array $row_title row title name
+     * @param string $filename download excel file name
+     * @param string $target_lang   target language
+     * @return void
+     */
+    public static function exportToExcel($rs_data = array(), $row_title = array(), $filename = 'report',$target_lang = 'GBK')
+    {
+        header("Content-Disposition: attachment; filename=\"{$filename}.xls\"");
+        header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+        header("Accept-Ranges:bytes");
+        header("Content-type:application/vnd.ms-excel");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        $out = fopen("php://output", 'w');
+
+        if (!empty($row_title)) {
+            foreach ($row_title as $k => $v) {
+                $row_title[$k] = mb_convert_encoding($v, $target_lang, "UTF-8");
+            }
+            fputcsv($out, $row_title,"\t");
+        }
+        if (!empty($rs_data)) {
+            foreach($rs_data as $key => $val) {
+                foreach ($val as $ck => $cv) {
+                    $rs_data[$key][$ck] = mb_convert_encoding($cv, $target_lang, "UTF-8");
+                }
+                fputcsv($out, $rs_data[$key],"\t");
+            }
+        }
+        fclose($out);
+        //need to add exit at end
+    }
 }
