@@ -232,16 +232,38 @@ class File
         }
     }
 
+    /**
+     * get current env map settings;if env = 'prod_com_a'; then setting file is: settings_prod_com_a.php
+     *
+     * @param string $key
+     * @return void
+     */
     public static function getSetting($key = '')
     {
         if(!defined('BAOGG_ROOT')) {
             throw new \Exception("Please define BAOGG_ROOT path to your app directory path");
         }
-        $path = \Baogg\App::isDev() ? realpath(BAOGG_ROOT. 'config/settings_local.php') : realpath(BAOGG_ROOT. 'config/settings.php');
+
+        $env = \Baogg\App::getEnv();
+        $path = realpath(BAOGG_ROOT. 'config/settings_'.$env.'.php');
+        /*
+        // default path;if exist env setting,then set env setting
+        $arr_env = explode('_', $env);
+        $arr_env_cnt = count($arr_env);
+        for($i = $arr_env_cnt;$i > 0;$i--) {
+            $cur_path =  realpath(BAOGG_ROOT. 'config/settings_'.implode('_', array_slice($arr_env, 0, $i)).'.php');
+            if($cur_path) {
+                $path = $cur_path;
+                break;
+            }
+        }
+        */
+
+        //$path = \Baogg\App::isDev() ? realpath(BAOGG_ROOT. 'config/settings_dev.php') : realpath(BAOGG_ROOT. 'config/settings.php');
         //error_log(__FILE__ . __LINE__ . " path = {$path}");
 
         if(!$path) {
-            throw new \Exception("Please define create your setting path to: ".(\Baogg\App::isDev() ? (BAOGG_ROOT. 'config/settings_local.php') : (BAOGG_ROOT. 'config/settings.php')));
+            throw new \Exception("Please define create your setting path to: ".(BAOGG_ROOT. 'config/settings_'.$env.'.php'));
         }
 
         $arr_setting = include $path;

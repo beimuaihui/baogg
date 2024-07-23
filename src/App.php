@@ -130,6 +130,11 @@ class App
         return self::$snowflake;
     }
 
+    public static function getEnv()
+    {
+        return getenv('HOST_ENV');
+    }
+
     /**
      * 判断当前环境是否为测试环境
      *
@@ -138,6 +143,6 @@ class App
     public static function isDev()
     {
         //error_log(__FILE__ . __LINE__ . " env HOST_ENV = {$_ENV['HOST_ENV']}");
-        return getenv('HOST_ENV') === 'dev';
+        return self::getEnv() === 'dev' || strpos(self::getEnv(), 'dev_') === 0;
     }
 }
