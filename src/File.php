@@ -193,8 +193,11 @@ class File
         }
 
         /* remove non-directory element from path */
-        $path = preg_replace('#/[^/]*$#', '', $path);
-
+        if(isset($path)) {
+            $path = preg_replace('#/[^/]*$#', '', $path);
+        } else {
+            $path = '';
+        }
         /* destroy path if relative url points to root */
         if ($rel[0] == '/') {
             $path = '';

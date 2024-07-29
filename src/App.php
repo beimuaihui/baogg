@@ -132,7 +132,7 @@ class App
 
     public static function getEnv()
     {
-        return getenv('HOST_ENV');
+        return getenv('HOST_ENV_V2') ? getenv('HOST_ENV_V2') : getenv('HOST_ENV');//because legacy system using HOST_ENV variables
     }
 
     /**

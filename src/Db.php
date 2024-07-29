@@ -14,6 +14,7 @@ namespace Baogg;
 use Aura\Sql\ExtendedPdo;
 use Aura\Sql\ConnectionLocator;
 use Aura\Sql\Profiler\Profiler;
+use Exception;
 
 class Db
 {
@@ -172,6 +173,10 @@ class Db
 
         $c  = \Baogg\APP::getSettings();
 
+        if(!isset($c['settings']['db'][$key]['prefix'])){
+            throw new \Exception("Please cofig db key {$key}!");
+        }
+
         return $c['settings']['db'][$key]['prefix'];
     }
     public static function getDbDriver($key)
@@ -182,6 +187,9 @@ class Db
         /* if($key == 'baogg' || !$key){
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
+        if(!isset($c['settings']['db'][$key]['driver'])){
+            throw new \Exception("Please cofig db key {$key}!");
+        }
 
         return $c['settings']['db'][$key]['driver'];
     }
@@ -201,6 +209,10 @@ class Db
         /* if($key == 'baogg' || !$key){
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
+
+         if(!isset($c['settings']['db'][$key]['driver'])){
+            throw new \Exception("Please cofig db key {$key}!");
+        }
 
         return $c['settings']['db'][$key]['dbname'];
     }

@@ -470,4 +470,74 @@ class Encrypt
     {
         return base64_decode(str_pad(strtr($data, '-_', '+/'), 4 - ((strlen($data) % 4) ?: 4), '=', STR_PAD_RIGHT));
     }
+
+
+    public static function passportEncrypt2($txt) { 
+        srand((double)microtime() * 1000000); 
+        $encrypt_key = md5(rand(0, 32000)); 
+        $ctr = 0; 
+        $tmp = ''; 
+        for($i = 0;$i < strlen($txt); $i++) { 
+        $ctr = $ctr == strlen($encrypt_key) ? 0 : $ctr; 
+        $tmp .= $encrypt_key[$ctr].($txt[$i] ^ $encrypt_key[$ctr++]); 
+        } 
+        return base64_encode(self::passportKey($tmp, 'wsy20')); 
+    } 
+
+    public static function passportEncrypt($txt,$level=0) {
+        $arr_sault = array(14311,2319,399,1);
+        if(count($arr_sault)<=$level){
+            return $txt;
+        }
+
+        $txt = (string)$txt;
+        srand((double)microtime() * 1000000); 
+        $encrypt_key = md5($arr_sault[$level]);//rand(0, 32000)
+        $ctr = 0; 
+        $tmp = ''; 
+        for($i = 0;$i < strlen($txt); $i++) { 
+        $ctr = $ctr == strlen($encrypt_key) ? 0 : $ctr; 
+        $tmp .= $encrypt_key[$ctr].($txt[$i] ^ $encrypt_key[$ctr++]); 
+        } 
+        $str =  base64_encode(self::passportKey($tmp, 'wsy20')); 
+        $pos = strpos($str,"+"); 
+        $pos2 = strpos($str,"/"); 
+        if($pos>0 or $pos2>0){
+            return self::passportEncrypt($txt,++$level);
+        }
+        if(!is_numeric($txt) || $level>0){
+            //error_log(__FILE__.__LINE__."\n level={$level}; txt={$txt};encrypt={$str}");
+        }
+        return $str;
+        
+    } 
+
+    public static function passportDecrypt($txt) {
+
+    
+
+        if(is_numeric($txt)){ //先加这测试一下 , 如果传入解密的文本是数字，表示不用再进行解密 。
+            return $txt;
+        }
+        $txt = self::passportKey(base64_decode($txt), 'wsy20'); 
+        $tmp = ''; 
+        for($i = 0;$i < strlen($txt); $i++) { 
+        $md5 = $txt[$i]; 
+        $tmp .= $txt[++$i] ^ $md5; 
+        } 
+        return $tmp; 
+        
+    }
+
+    public static function passportKey($txt, $encrypt_key) { 
+        $encrypt_key = md5($encrypt_key); 
+        $ctr = 0; 
+        $tmp = ''; 
+        for($i = 0; $i < strlen($txt); $i++) { 
+        $ctr = $ctr == strlen($encrypt_key) ? 0 : $ctr; 
+        $tmp .= $txt[$i] ^ $encrypt_key[$ctr++]; 
+        } 
+        return $tmp; 
+    }
+
 }

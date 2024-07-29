@@ -1004,7 +1004,7 @@ class Table
 
     public static function isDev()
     {
-        return \Baogg\File::getSetting('settings.is_dev');
+        return \Baogg\App::isDev();
     }
 
     public function setDebug($is_debug = false)
@@ -1212,18 +1212,19 @@ class Table
         }
         return $this->_slave_db;
     }
-    
-        /**
+
+    /**
      * 获取当前实例
      *
      * @return $this
      */
-    public static function getInstance() {
+    public static function getInstance()
+    {
 
         static $instance = [];
         $called_class = get_called_class();
 
-        if( !isset( $instance[ $called_class ] ) ) {
+        if(!isset($instance[ $called_class ])) {
             $instance[$called_class] = new $called_class();
         }
 
