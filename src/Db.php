@@ -34,7 +34,7 @@ class Db
     {
         $key = isset(self::$key_map[$key]) ? self::$key_map[$key] : strtolower($key);
         if (!array_key_exists($key, self::$arr_db)) {
-            $c  = \Baogg\APP::getSettings();
+            $c  = \Baogg\App::getSettings();
             $db = $c['settings']['db'][$key];
 
 
@@ -139,8 +139,9 @@ class Db
     {
         self::$trans_level--;
     }
-        public function beginTransaction($key = ''){
-        if(!self::getTransLevel($key)){
+    public function beginTransaction($key = '')
+    {
+        if(!self::getTransLevel($key)) {
             $level = self::increTransLevel($key);
             return self::getDb($key)->beginTransaction();
         }
@@ -149,18 +150,19 @@ class Db
         return $level >= 0;
     }
 
-    public function commit($key = ''){
+    public function commit($key = '')
+    {
         $level = self::DecreTransLevel($key);
-        if(!$level){
+        if(!$level) {
             return self::getDb($key)->commit();
         }
-        return $level>=0;
+        return $level >= 0;
     }
 
-    public function rollBack($key = ''){
+    public function rollBack($key = '')
+    {
         $level = self::DecreTransLevel($key);
-        if($level)
-        {
+        if($level) {
             self::getDb($key)->exec('ROLLBACK TO trans'.($level + 1));
             return true;
         }
@@ -171,9 +173,9 @@ class Db
     {
         $key = isset(self::$key_map[$key]) ? self::$key_map[$key] : strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
 
-        if(!isset($c['settings']['db'][$key]['prefix'])){
+        if(!isset($c['settings']['db'][$key]['prefix'])) {
             throw new \Exception("Please cofig db key {$key}!");
         }
 
@@ -183,11 +185,11 @@ class Db
     {
         $key = isset(self::$key_map[$key]) ? self::$key_map[$key] : strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
         /* if($key == 'baogg' || !$key){
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
-        if(!isset($c['settings']['db'][$key]['driver'])){
+        if(!isset($c['settings']['db'][$key]['driver'])) {
             throw new \Exception("Please cofig db key {$key}!");
         }
 
@@ -205,12 +207,12 @@ class Db
     {
         $key = isset(self::$key_map[$key]) ? self::$key_map[$key] : strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
         /* if($key == 'baogg' || !$key){
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
 
-         if(!isset($c['settings']['db'][$key]['driver'])){
+        if(!isset($c['settings']['db'][$key]['driver'])) {
             throw new \Exception("Please cofig db key {$key}!");
         }
 
@@ -229,7 +231,7 @@ class Db
     {
         $key = isset(self::$key_map[$key]) ? self::$key_map[$key] : strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
         /* if($key == 'baogg' || !$key){
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
@@ -246,7 +248,7 @@ class Db
     {
         // $key=isset(self::$key_map[$key])?self::$key_map[$key]:strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
         $arr_db = $c['settings']['db'];
         foreach ($arr_db as $db_key => $row_db) {
             if ($row_db['is_default']) {

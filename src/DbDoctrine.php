@@ -31,7 +31,7 @@ class DbDoctrine {
 		if (! array_key_exists ( $key,self::$arr_db )) {
 
 
-            $c  = \Baogg\APP::getSettings();
+            $c  = \Baogg\App::getSettings();
             $db = $c['settings']['db'][$key];
 
 
@@ -123,14 +123,14 @@ class DbDoctrine {
 	public static function getTablePrefix($key){		
 		$key=isset(self::$key_map[$key])?self::$key_map[$key]:strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
 
 		return $c['settings']['db'][$key]['prefix'];
 	}
 	public static function getDbDriver($key){
         $key=isset(self::$key_map[$key])?self::$key_map[$key]:strtolower($key);
 
-        $c  = \Baogg\APP::getSettings();
+        $c  = \Baogg\App::getSettings();
        /* if($key == 'baogg' || !$key){
             echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
         }*/
