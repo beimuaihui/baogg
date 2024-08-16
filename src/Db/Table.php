@@ -294,6 +294,18 @@ class Table
             //            echo '<br />';
             //            print_r((array)$where );
             //            debug_print_backtrace();
+
+            if ($this->is_debug && self::isDev()) {
+                error_log(__FILE__.__LINE__.var_export($select->getStatement(), true));
+                error_log(__FILE__.__LINE__.var_export($select->getBindValues(), true));
+                $arr_tmp =  $select->getBindValues();
+                $str_tmp = $select->getStatement();
+                foreach ($arr_tmp as $k_tmp => $v_tmp) {
+                    $str_tmp = str_replace(':'.$k_tmp, is_bool($v_tmp) ? $v_tmp : "'{$v_tmp}'", $str_tmp);
+                }
+                error_log(__FILE__.__LINE__."\n".$str_tmp);
+            }
+
         }
         /* if($group){
 
@@ -1010,6 +1022,7 @@ class Table
     public function setDebug($is_debug = false)
     {
         $this->is_debug = $is_debug;
+        return $this;
     }
 
 

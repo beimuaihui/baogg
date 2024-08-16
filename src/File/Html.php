@@ -13,28 +13,27 @@ namespace Baogg\File;
 
 class Html extends \Baogg\File
 {
+    public const CODE_ERR_LACK_FIELD = -541;
+    public const CODE_ERR_EXISTS_DUPLICATE = -542;
+    public const CODE_ERR_DATA = -540;
+    public const CODE_ERR_NO_DATA = -543;
+    public const CODE_UNAUTHORIZED_USER = -401;
 
-    const CODE_ERR_LACK_FIELD = -541;
-    const CODE_ERR_EXISTS_DUPLICATE = -542;
-    const CODE_ERR_DATA = -540;
-    const CODE_ERR_NO_DATA = -543;
-    const CODE_UNAUTHORIZED_USER = -401;
+    public const CODE_OK = 200;
+    public const CODE_EMPTY = 0;
+    public const CODE_ERR_SQL = -543;
 
-    const CODE_OK = 200;
-    const CODE_EMPTY = 0;
-    const CODE_ERR_SQL = -543;
-
-    const CODE_CREATED = 201;
-    const CODE_UPDATED = 231;
-    const CODE_DELETED = 204;
-    const CODE_SAVE_LIST = 241;
-    const CODE_NOT_FOUND = -404;
-    const CODE_UNPROCESSABLE = -422;
-    const CODE_SESSION_TIMEOUT = -419;
-
+    public const CODE_CREATED = 201;
+    public const CODE_UPDATED = 231;
+    public const CODE_DELETED = 204;
+    public const CODE_SAVE_LIST = 241;
+    public const CODE_NOT_FOUND = -404;
+    public const CODE_UNPROCESSABLE = -422;
+    public const CODE_SESSION_TIMEOUT = -419;
 
 
-    static function genFile($dir, $filename, $content = '')
+
+    public static function genFile($dir, $filename, $content = '')
     {
         self::mkdir(\BAOGG_UPLOAD_DIR . $dir);
         $filename = self::fixFileName($filename);
@@ -43,7 +42,7 @@ class Html extends \Baogg\File
 
         return \BAOGG_FILE_URL . $dir . $filename;
     }
-    static function genFiles($dir, $filenames = array(), $urls = array())
+    public static function genFiles($dir, $filenames = array(), $urls = array())
     {
         self::mkdir(\BAOGG_UPLOAD_DIR . $dir);
         $contents = self::multiGet($urls);
@@ -53,16 +52,16 @@ class Html extends \Baogg\File
 
         return $filenames;
     }
-    static function multiGet($urls = array(), $fixUrlName = true, $cookie = '')
+    public static function multiGet($urls = array(), $fixUrlName = true, $cookie = '')
     {
         $res = array();
 
         $urls = is_array($urls) ? $urls : array($urls);
         /*
-		foreach($urls as $i => $url)
-		{
-			$res[$i] = file_get_contents($url);			
-		}*/
+        foreach($urls as $i => $url)
+        {
+            $res[$i] = file_get_contents($url);
+        }*/
 
 
 
@@ -85,7 +84,7 @@ class Html extends \Baogg\File
             curl_setopt($ch[$i], CURLOPT_HTTPHEADER, array("REMOTE_ADDR: $ip", "HTTP_X_FORWARDED_FOR: $ip", 'X-FORWARDED-FOR:' . $ip, 'CLIENT-IP:' . $ip));
             //curl_setopt($ch[$i], CURLOPT_INTERFACE, $ip2);
             //curl_setopt($ch[$i], CURLOPT_HTTPPROXYTUNNEL, 0);
-            //curl_setopt($ch[$i], CURLOPT_PROXY , $ip2.":80"); 
+            //curl_setopt($ch[$i], CURLOPT_PROXY , $ip2.":80");
 
             curl_multi_add_handle($mh, $ch[$i]);
         }
@@ -102,7 +101,7 @@ class Html extends \Baogg\File
                 usleep(100);
             }
             /*$numberReady = curl_multi_select($mh);
-			if ($numberReady != -1) {*/
+            if ($numberReady != -1) {*/
             // Pull in any new data, or at least handle timeouts
             do {
                 $execReturnValue = curl_multi_exec($mh, $active);
@@ -205,9 +204,15 @@ class Html extends \Baogg\File
         $rcount = 0;
         $browser_type = '';
 
-        foreach ($browser_freq as $k => $v) $max += $v;
+        foreach ($browser_freq as $k => $v) {
+            $max += $v;
+        }
         $roll = rand(0, $max);
-        foreach ($browser_freq as $k => $v) if (($roll <= ($rcount += $v)) and (!$browser_type)) $browser_type = $k;
+        foreach ($browser_freq as $k => $v) {
+            if (($roll <= ($rcount += $v)) and (!$browser_type)) {
+                $browser_type = $k;
+            }
+        }
         $user_agent_array = $browser_strings[$browser_type];
         shuffle($user_agent_array);
         $user_agent = $user_agent_array[0];
@@ -247,75 +252,75 @@ class Html extends \Baogg\File
             'show-body-only'    => true
         );
         /*$config = array(
-			'show-body-only' => false,
-			'clean' => true,
-			'char-encoding' => 'utf8',
-			'add-xml-decl' => true,
-			'add-xml-space' => true,
-			'output-html' => false,
-			'output-xml' => false,
-			'output-xhtml' => true,
-			'numeric-entities' => false,
-			'ascii-chars' => false,
-			'doctype' => 'strict',
-			'bare' => true,
-			'fix-uri' => true,
-			'indent' => true,
-			'indent-spaces' => 4,
-			'tab-size' => 4,
-			'wrap-attributes' => true,
-			'wrap' => 0,
-			'indent-attributes' => true,
-			'join-classes' => false,
-			'join-styles' => false,
-			'enclose-block-text' => true,
-			'fix-bad-comments' => true,
-			'fix-backslash' => true,
-			'replace-color' => false,
-			'wrap-asp' => false,
-			'wrap-jste' => false,
-			'wrap-php' => false,
-			'write-back' => true,
-			'drop-proprietary-attributes' => false,
-			'hide-comments' => false,
-			'hide-endtags' => false,
-			'literal-attributes' => false,
-			'drop-empty-paras' => true,
-			'enclose-text' => true,
-			'quote-ampersand' => true,
-			'quote-marks' => false,
-			'quote-nbsp' => true,
-			'vertical-space' => true,
-			'wrap-script-literals' => false,
-			'tidy-mark' => true,
-			'merge-divs' => false,
-			'repeated-attributes' => 'keep-last',
-			'break-before-br' => true,
-		);*/
+            'show-body-only' => false,
+            'clean' => true,
+            'char-encoding' => 'utf8',
+            'add-xml-decl' => true,
+            'add-xml-space' => true,
+            'output-html' => false,
+            'output-xml' => false,
+            'output-xhtml' => true,
+            'numeric-entities' => false,
+            'ascii-chars' => false,
+            'doctype' => 'strict',
+            'bare' => true,
+            'fix-uri' => true,
+            'indent' => true,
+            'indent-spaces' => 4,
+            'tab-size' => 4,
+            'wrap-attributes' => true,
+            'wrap' => 0,
+            'indent-attributes' => true,
+            'join-classes' => false,
+            'join-styles' => false,
+            'enclose-block-text' => true,
+            'fix-bad-comments' => true,
+            'fix-backslash' => true,
+            'replace-color' => false,
+            'wrap-asp' => false,
+            'wrap-jste' => false,
+            'wrap-php' => false,
+            'write-back' => true,
+            'drop-proprietary-attributes' => false,
+            'hide-comments' => false,
+            'hide-endtags' => false,
+            'literal-attributes' => false,
+            'drop-empty-paras' => true,
+            'enclose-text' => true,
+            'quote-ampersand' => true,
+            'quote-marks' => false,
+            'quote-nbsp' => true,
+            'vertical-space' => true,
+            'wrap-script-literals' => false,
+            'tidy-mark' => true,
+            'merge-divs' => false,
+            'repeated-attributes' => 'keep-last',
+            'break-before-br' => true,
+        );*/
 
         if ($tidy_config == '') {
             $tidy_config = $config;
         }
 
-        $tidy = new \tidy;
+        $tidy = new \tidy();
         $tidy->parseString($html, $tidy_config, 'utf8');
         $tidy->cleanRepair();
         //remove body tag
         return trim($tidy->value);
     }
 
-    static function getJsonByCurl($url = '')
+    public static function getJsonByCurl($url = '')
     {
         $headerArray = array("Content-type:application/json;", "Accept:application/json");
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headerArray);
         $output = curl_exec($ch);
         //关闭URL请求
-        if ($output === FALSE) {
+        if ($output === false) {
             echo "CURL Error:" . curl_error($ch);
         }
         curl_close($ch);
@@ -323,7 +328,7 @@ class Html extends \Baogg\File
         return $output;
     }
 
-    static function getByPostJsonCurl($url = '', $param = [])
+    public static function getByPostJsonCurl($url = '', $param = [])
     {
 
         $curl = curl_init();
@@ -351,5 +356,84 @@ class Html extends \Baogg\File
         //var_dump($response);
         // $output = json_decode($response, true);
         return $response;
+    }
+
+    public static function replace_img_src($img_tag, $opt = array('webp' => true))
+    {
+        $doc = new \DOMDocument('1.0', 'UTF-8');
+        $doc->encoding = 'UTF-8';
+        $doc->loadHTML('<?xml encoding="UTF-8">' .$img_tag);
+        $tags = $doc->getElementsByTagName('img');
+        foreach ($tags as $tag) {
+            $old_src = $tag->getAttribute('src');
+            $new_src_url =  \Shanming\File::fixUrlName($old_src, \Shanming\File\OSS::getBaseUrl(), $opt);
+            $tag->setAttribute('src', $new_src_url);
+        }
+        return $doc->saveHTML();
+    }
+
+    public static function replace_img_src_width($img_tag)
+    {
+        $doc = new \DOMDocument('1.0', 'UTF-8');
+        $doc->encoding = 'UTF-8';
+        $doc->loadHTML('<?xml encoding="UTF-8">' .$img_tag);
+        $tags = $doc->getElementsByTagName('img');
+        foreach ($tags as $tag) {
+            $old_src = $tag->getAttribute('src');
+            $new_src_url =  \Baogg\File::fixUrlName($old_src, \Baogg\File\Oss\AliyunOss::getBaseUrl());
+            $tag->setAttribute('src', $new_src_url);
+
+            //change width:750px;height:240px? to width:100%
+            $old_style = $tag->getAttribute('style');
+            $new_style = preg_replace('/width\s*:\s*[\d\.]+px\s*;(\s*height\s*:\s*[\w\.]+\s*px\s*;)?/', '', $old_style);
+            $new_style = trim(trim($new_style), ';').';width:100%;';
+            $tag->setAttribute('style', $new_style);
+        }
+        return $doc->saveHTML();
+    }
+
+    public static function getRemoteFile($url, $path)			//下载微信头像的图片到服务器 缓解延迟问题
+    {
+
+        // 设置运行时间为无限制
+        set_time_limit(0);
+
+        $url = trim($url);
+        $curl = curl_init();
+        // 设置你需要抓取的URL
+        curl_setopt($curl, CURLOPT_URL, $url);
+        // 设置header
+        curl_setopt($curl, CURLOPT_HEADER, 0);
+        // 设置cURL 参数，要求结果保存到字符串中还是输出到屏幕上。
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        // 运行cURL，请求网页
+        $file = curl_exec($curl);
+        // 关闭URL请求
+        curl_close($curl);
+        // 将文件写入获得的数据
+        $filename = $path ;
+        $write = @fopen($filename, "w");
+        if ($write == false) {
+            return false;
+        }
+        if (fwrite($write, $file) == false) {
+            return false;
+        }
+        if (fclose($write) == false) {
+            return false;
+        }
+        return true;
+    }
+
+    public static function convertColorThreeToSix($color = "#fff")
+    {
+        $color = trim($color);
+        if(strlen($color) != 4) {
+            return $color;
+        }
+        $pattern = '/#(\w)(\w)(\w)/i';
+        $replacement = '#${1}${1}${2}${2}${3}${3}';
+        $res =  preg_replace($pattern, $replacement, $color);
+        return $res;
     }
 }

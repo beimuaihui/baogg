@@ -7,62 +7,66 @@
  * https://github.com/beimuaihui
  * $Id: File.php 240 2011-06-13 13:02:06Z beimuaihui $
  */
+
 namespace Baogg\File\Oss;
+
 class AliyunOss extends \Baogg\File
 {
-    static function upload($des_path){
-        $ret = array ('error' => 0, 'msg' => '');
-        //如果开启了oss
-        if(SHANMING_OSS_ON===true && SHANMING_OSS_ISUPLOAD){  //not dev server
-            include_once ROOT_DIR."shanming/util/aliyun-oss-php-sdk/autoload.php";
-            $ossClient = new \OSS\OssClient(SHANMING_OSS_KEY, SHANMING_OSS_SECRET, SHANMING_OSS_URL);
-            try {
+    public static function upload($des_path)
+    {
+        $ret = array('error' => 0, 'msg' => '');
 
-                $target_path = str_replace ( ROOT_DIR, '', ($des_path) );//uploadToOSS
-                $rs_oss = $ossClient->multiuploadFile(SHANMING_OSS_BUCKET, $target_path, $des_path);
-            } catch (\OSS\Core\OssException $e) {
-                return array ('error' => - 1, 'msg' => $e->getMessage() );
-            }
+        $ossClient = new \OSS\OssClient(SHANMING_OSS_KEY, SHANMING_OSS_SECRET, SHANMING_OSS_URL);
+        try {
+
+            $target_path = str_replace(ROOT_DIR, '', ($des_path));//uploadToOSS
+            $rs_oss = $ossClient->multiuploadFile(SHANMING_OSS_BUCKET, $target_path, $des_path);
+        } catch (\OSS\Core\OssException $e) {
+            return array('error' => - 1, 'msg' => $e->getMessage() );
         }
         return $ret;
     }
 
-    static function show($url,$opt=array('webp'=>true,'base'=>SHANMING_OSS_PATH)){
-        if(!$url){
+    public static function show($url, $opt = array('webp' => true,'base' => URL_CDN))
+    {
+        if(!$url) {
             return $url;
         }
-        if(!isset($opt['webp'])){
-            $opt['webp']=true;
+        if(!isset($opt['webp'])) {
+            $opt['webp'] = true;
         }
-        if(!isset($opt['base'])){
-            $opt['base']=SHANMING_OSS_PATH;
+        if(!isset($opt['base'])) {
+            $opt['base'] = URL_CDN;
         }
-        return SHANMING_OSS_ON?\Baogg\File::fixUrlName($url , $opt['base'],$opt):$url;
+        return  \Baogg\File::fixUrlName($url, $opt['base'], $opt);
     }
 
-    static function show2($url,$base='',$opt=array('webp'=>false)){
-        if(!$url){
+    public static function show2($url, $base = '', $opt = array('webp' => false))
+    {
+        if(!$url) {
             return $url;
         }
-        if(!isset($opt['webp'])){
-            $opt['webp']=true;
+        if(!isset($opt['webp'])) {
+            $opt['webp'] = true;
         }
-        if(!$base){
-            $base=self::getBaseUrl();
+        if(!$base) {
+            $base = self::getBaseUrl();
         }
 
-        return \Baogg\File::fixUrlName($url , $base,$opt);
+        return \Baogg\File::fixUrlName($url, $base, $opt);
     }
 
-    static  function showSiteUrl($url,$opt=array('webp'=>false)){
-        return self::show2($url,Protocol.HostUrl,$opt);
+    public static function showSiteUrl($url, $opt = array('webp' => false))
+    {
+        return self::show2($url, Protocol.HostUrl, $opt);
     }
 
-    static function getBaseUrl(){
-        return SHANMING_OSS_ON?SHANMING_OSS_PATH:Protocol.HostUrl;
+    public static function getBaseUrl()
+    {
+        return URL_CDN;
     }
 
-    static function gmt_iso8601($time)
+    public static function gmt_iso8601($time)
     {
         return str_replace('+00:00', '.000Z', gmdate('c', $time));
     }

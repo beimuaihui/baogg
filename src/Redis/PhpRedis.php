@@ -41,7 +41,7 @@ class PhpRedis
         if (!$configs) {
             $configs = \Baogg\App::getSettings()['settings']['redis'];
         }
-
+        // \Baogg\Logger::err(" config = ".json_encode($configs, JSON_UNESCAPED_UNICODE),__FILE__,__LINE__);
         if (!self::$Instance) {
             self::$Instance = new self($configs);
         }
@@ -67,6 +67,8 @@ class PhpRedis
             return $this->getRedis($key, 'master');
         }
         $arr_type_config = $this->_config[$type];
+
+        //\Baogg\Logger::err(" getRedis key = {$key}; type = {$type}; arr_type_config =  ".json_encode($arr_type_config, JSON_UNESCAPED_UNICODE), __FILE__,__LINE__);
         $type_index = $this->getTypeIndex($key, $arr_type_config);
 
         $Instance = new \Redis();
@@ -114,14 +116,47 @@ class PhpRedis
         if (!$expire) {
             return $redis->set($key, $value);
         } else {
-            return $redis->set($key, $value, (int)$expire);
+            return $redis->set($key, $value, $expire);
         }
     }
+
 
 
     public function get($key, $type = self::MASTER_TYPE)
     {
         return $this->getRedis($key, $type)->get($key);
+    }
+
+    /**
+     * 设置键值，expire单位为秒,option参考官网,如['nx', 'ex'=>10]
+     * 
+     * @reference: https://github.com/phpredis/phpredis
+     */
+    public function setV2($key, $value, $expire = 0, $is_serialize = false, $option = array(), $type = self::MASTER_TYPE)
+    {
+        // error_log(__FILE__.__LINE__." redis set = {$key},{$value},{$expire}=0, {$is_serialize}=false");
+        $redis = $this->getRedis($key,$type);
+        if ($is_serialize) {
+            $value = json_encode($value);
+        }
+
+        if ($option) {
+            return $redis->set($key, $value, $option);
+        } else if (!$expire) {
+            return $redis->set($key, $value);
+        } else {
+            return $redis->set($key, $value, (int)$expire);
+        }
+    }
+
+
+    public function getV2($key, $is_unserialize = false, $type = self::MASTER_TYPE)
+    {
+        $data = $this->getRedis($key,$type)->get($key);
+        if ($data && $is_unserialize) {
+            $data = json_decode($data,true);
+        }
+        return $data;
     }
 
 
@@ -259,7 +294,7 @@ class PhpRedis
                 return $data;
             }
 
-            $flag_lock = $this->set($cache_key.':lock', $lock_value, 0, false, ['nx', 'ex' => $second_time], $type);
+            $flag_lock = $this->setV2($cache_key.':lock', $lock_value, 0, false, ['nx', 'ex' => $second_time], $type);
             if ($flag_lock) { // 锁定成功,则继续执行，否则休息100毫秒
                 break;
             }
@@ -289,7 +324,7 @@ class PhpRedis
                 return $data;
             }
 
-            $flag_lock = $this->set($cache_key.'::'.$hashKey. ':lock', $lock_value, 0, false, ['nx', 'ex' => $second_time], $type);
+            $flag_lock = $this->setV2($cache_key.'::'.$hashKey. ':lock', $lock_value,0,false, ['nx', 'ex' => $second_time], $type);
             if ($flag_lock) { // 锁定成功,则继续执行，否则休息100毫秒
                 break;
             }
