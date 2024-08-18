@@ -172,10 +172,12 @@ class Table
 
         $arr_sub_where = array();
         $arr_sub_where = $this->buildWhere($where, $cols_filter, 'and', '', 0); //if multi op,such as multi 'and',then use ' and ','  and  '
-        //error_log(__FILE__.__LINE__." sub=".var_export($arr_sub_where,true));
+        //error_log(__FILE__.__LINE__." sub=".var_export($arr_sub_where, true));
         //$arr_where[] = $arr_sub_where['where'];
         //$arr_where_bind = array_merge($arr_where_bind,$arr_sub_where['bind']);
-        $select->where($arr_sub_where['where']);
+        if($arr_sub_where['where']) {
+            $select->where($arr_sub_where['where']);
+        }
 
         if (is_array($arr_sub_where['bind']) && $arr_sub_where['bind']) {
             foreach ($arr_sub_where['bind'] as $arr_sub_where_bind_k => $arr_sub_where_bind_v) {
@@ -441,7 +443,7 @@ class Table
                 }
             }
         }
-        return array('where' => '(' . implode(' ' . $op . ' ', $arr_where) . ')', 'bind' => $arr_where_bind);
+        return array('where' => !$arr_where ? '' : '(' . implode(' ' . $op . ' ', $arr_where) . ')', 'bind' => $arr_where_bind);
     }
 
 
