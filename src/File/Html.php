@@ -360,6 +360,7 @@ class Html extends \Baogg\File
 
     public static function replace_img_src($img_tag, $opt = array('webp' => true))
     {
+        libxml_use_internal_errors(true);
         $doc = new \DOMDocument('1.0', 'UTF-8');
         $doc->encoding = 'UTF-8';
         $doc->loadHTML('<?xml encoding="UTF-8">' .$img_tag);
@@ -374,6 +375,7 @@ class Html extends \Baogg\File
 
     public static function replace_img_src_width($img_tag)
     {
+        libxml_use_internal_errors(true);
         $doc = new \DOMDocument('1.0', 'UTF-8');
         $doc->encoding = 'UTF-8';
         $doc->loadHTML('<?xml encoding="UTF-8">' .$img_tag);
