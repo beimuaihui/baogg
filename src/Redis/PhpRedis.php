@@ -288,7 +288,8 @@ class PhpRedis
     {
 
         $wait_times = 0; // 等待次数
-        while ($wait_times < $second_time * 10) {
+        // max wait 100 ms
+        while ($wait_times < 10) {
             $data = $this->get($cache_key, $type);
             if ($data !== false) { // 存在缓存数据，则直接获取返回
                 return $data;
@@ -299,7 +300,7 @@ class PhpRedis
                 break;
             }
 
-            usleep(100000);
+            usleep(10000);
             $wait_times++;
         }
 
@@ -318,7 +319,8 @@ class PhpRedis
     {
 
         $wait_times = 0; // 等待次数
-        while ($wait_times < $second_time * 10) {
+        // max wait 100 ms
+        while ($wait_times <  10) {
             $data = $this->hGet($cache_key, $hashKey, $type);
             if ($data !== false) { // 存在缓存数据，则直接获取返回
                 return $data;
@@ -329,7 +331,7 @@ class PhpRedis
                 break;
             }
 
-            usleep(100000);
+            usleep(10000);
             $wait_times++;
         }
 

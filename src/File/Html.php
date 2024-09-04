@@ -370,6 +370,7 @@ class Html extends \Baogg\File
             $new_src_url =  \Shanming\File::fixUrlName($old_src, \Shanming\File\OSS::getBaseUrl(), $opt);
             $tag->setAttribute('src', $new_src_url);
         }
+        libxml_clear_errors();
         return $doc->saveHTML();
     }
 
@@ -391,6 +392,7 @@ class Html extends \Baogg\File
             $new_style = trim(trim($new_style), ';').';width:100%;';
             $tag->setAttribute('style', $new_style);
         }
+        libxml_clear_errors();
         return $doc->saveHTML();
     }
 
