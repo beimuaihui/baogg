@@ -943,6 +943,13 @@ class Table
         return $row;
     }
 
+    public function setDataMaskFields($arr = []){
+        $this->_data_mask_fields = $arr;
+    }
+    public function resetDataMaskFields(){
+        $this->_data_mask_fields = ['phone' => ['phone'], 'email' => ['email']];
+    }
+
 
     public function getByID($id = 0, $cols = '*')
     {
