@@ -1215,7 +1215,7 @@ class Table
         for ($i = $begin; $i <= $end; $i++) {
             $strarr[$i] = $re;
         }
-        if ($begin >= $end || $begin >= $last || $end > $last) {
+        if ($begin > $end || $begin > $last || $end > $last) {
             return '*';
         }
         return implode('', $strarr);
