@@ -943,10 +943,12 @@ class Table
         return $row;
     }
 
-    public function setDataMaskFields($arr = []){
+    public function setDataMaskFields($arr = [])
+    {
         $this->_data_mask_fields = $arr;
     }
-    public function resetDataMaskFields(){
+    public function resetDataMaskFields()
+    {
         $this->_data_mask_fields = ['phone' => ['phone'], 'email' => ['email']];
     }
 
@@ -1067,6 +1069,13 @@ class Table
     {
         return \Baogg\Db::getDbName($this->_db_key);
     }
+
+
+    public function getDb()
+    {
+        return $this->_db;
+    }
+
 
     /**
      * 生成树型结构

@@ -247,7 +247,20 @@ class File
             throw new \Exception("Please define BAOGG_ROOT path to your app directory path");
         }
 
+
         $env = \Baogg\App::getEnv();
+
+        // \Baogg\Logger::err(BAOGG_ROOT. 'config/settings_'.$env.'.php', __FILE__, __LINE__);
+        if($env == 'dev_fst') {
+            //special dev env
+            $param_customer_id = \App\Model\SmMall\WeixinCommonshopsPlus::getDefaultCustomerIdByClient();
+
+            // \Baogg\Logger::err("param_customer_id = {$param_customer_id} ", __FILE__, __LINE__);
+            if(in_array($param_customer_id, [41, '41'])) {
+                $env  = 'dev_sm';
+            }
+        }
+
         $path = realpath(BAOGG_ROOT. 'config/settings_'.$env.'.php');
         /*
         // default path;if exist env setting,then set env setting
