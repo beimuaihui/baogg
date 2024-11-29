@@ -239,7 +239,7 @@ class File
      * get current env map settings;if env = 'prod_com_a'; then setting file is: settings_prod_com_a.php
      *
      * @param string $key
-     * @return void
+     * @return string | array
      */
     public static function getSetting($key = '')
     {
