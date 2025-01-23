@@ -29,6 +29,11 @@ class Waf
             self::write_attack_log("method");
         }*/
 
+        // 大文章5000中文字内容大概率会出现问题
+        if($_POST && isset($_POST['allow_html']) && $_POST['allow_html']) {
+            return ;
+        }
+
         $url = isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:''; //获取uri来进行检测
 
         $data = file_get_contents('php://input'); //获取post的data，无论是否是mutipart
@@ -173,7 +178,7 @@ class Waf
     */
     public static function  write_attack_log($alert){
         $data = date("Y/m/d H:i:s")." -- [".$alert."]"."\r\n".self::get_http_raw()."\r\n\r\n";
-        error_log($data);
+        error_log(__FILE__.__LINE__." Baogg WAF error:".$data);
         if($alert == 'GETFLAG'){
             echo "HCTF{aaaa}"; //如果请求带有flag关键字，显示假的flag。（2333333）
         }else{

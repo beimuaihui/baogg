@@ -154,7 +154,7 @@ class Table
             }
             //error_log(__FILE__.__LINE__." \n v_name  = {$v['name']}");
             $select->join($join_type, $v['name'] . ' as ' . $join_alias, $v['condition']);
-            if ($v['cols']) {
+            if (isset($v['cols']) && $v['cols']) {
                 if (is_array($v['cols'])) {
                     $cols = array_merge($cols, $v['cols']);
                 } else {
