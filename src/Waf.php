@@ -177,14 +177,15 @@ class Waf
     这里拦截并记录攻击payload
     */
     public static function  write_attack_log($alert){
-        $data = date("Y/m/d H:i:s")." -- [".$alert."]"."\r\n".self::get_http_raw()."\r\n\r\n";
-        error_log(__FILE__.__LINE__." Baogg WAF error:".$data);
+        $data = __FILE__.__LINE__." Baogg WAF error:".date("Y/m/d H:i:s")." -- [".$alert."]"."\r\n".self::get_http_raw()."\r\n\r\n";
+        error_log($data);
         if($alert == 'GETFLAG'){
             echo "HCTF{aaaa}"; //如果请求带有flag关键字，显示假的flag。（2333333）
         }else{
             sleep(15); //拦截前延时15秒
         }
-        exit(0);
+        // exit(0);
+        throw new \Exception($data);
     }
 }
 
@@ -352,7 +353,7 @@ function check($str,$v)
         {
             Waf::write_attack_log("<br>IP: ".$_SERVER["REMOTE_ADDR"]."<br>时间: ".strftime("%Y-%m-%d %H:%M:%S")."<br>页面:".$_SERVER["PHP_SELF"]."<br>提交方式: ".$_SERVER["REQUEST_METHOD"]."<br>提交数据: ".$str);
             print "您的提交带有不合法参数,谢谢合作";
-            exit();
+            // exit();
         }
     }
 }
