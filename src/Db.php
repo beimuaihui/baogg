@@ -24,7 +24,7 @@ class Db
     protected static $arr_slave_db = array();
     protected static $index_slave_db = -1;
     protected static $enable_slave = false;
-    protected static $trans_level = 0;
+    protected static $trans_level = array();
     //this can't be construct outside,single pattern
     protected function __construct()
     {
@@ -127,45 +127,72 @@ class Db
         return self::$enable_slave;
     }
 
-    public static function getTransLevel()
+    public static function getTransLevel($key)
     {
-        return self::$trans_level;
+        if (!isset(self::$trans_level[$key]) || self::$trans_level[$key] <= 0) {
+            self::$trans_level[$key] = 0;
+        }
+        return self::$trans_level[$key];
     }
-    public static function increTransLevel()
+    public static function increTransLevel($key)
     {
-        self::$trans_level++;
+        if (!isset(self::$trans_level[$key]) || self::$trans_level[$key] <= 0) {
+            self::$trans_level[$key] = 0;
+        }
+
+        self::$trans_level[$key] = self::$trans_level[$key] + 1;
+        return self::$trans_level[$key];
     }
-    public static function DecreTransLevel()
+    public static function DecreTransLevel($key)
     {
-        self::$trans_level--;
+        if (!isset(self::$trans_level[$key]) || self::$trans_level[$key] <= 0) {
+            self::$trans_level[$key] = 0;
+            return 0;
+        }
+        self::$trans_level[$key] = self::$trans_level[$key] - 1;
+        return self::$trans_level[$key] ;
     }
-    public function beginTransaction($key = '')
+
+    public static function beginTransaction($key = '')
     {
-        if(!self::getTransLevel($key)) {
+        if (!self::getTransLevel($key)) {
             $level = self::increTransLevel($key);
+
+            \Baogg\Logger::err("DbPlus beginTransaction level={$level} key={$key}", __FILE__, __LINE__);
             return self::getDb($key)->beginTransaction();
         }
         $level = self::increTransLevel($key);
         self::getDb($key)->exec('SAVEPOINT trans'.$level);
+
+        \Baogg\Logger::err("DbPlus beginTransaction level={$level} key={$key}", __FILE__, __LINE__);
         return $level >= 0;
     }
 
-    public function commit($key = '')
+    public static function commit($key = '')
     {
         $level = self::DecreTransLevel($key);
-        if(!$level) {
+        if ($level <= 0) {
+
+            \Baogg\Logger::err("DbPlus commit level=".($level + 1)." key={$key}", __FILE__, __LINE__);
             return self::getDb($key)->commit();
         }
+
+        \Baogg\Logger::err("DbPlus commit level=".($level + 1)." key={$key}", __FILE__, __LINE__);
         return $level >= 0;
     }
 
-    public function rollBack($key = '')
+    public static function rollBack($key = '')
     {
         $level = self::DecreTransLevel($key);
-        if($level) {
-            self::getDb($key)->exec('ROLLBACK TO trans'.($level + 1));
+        if ($level > 0) {
+            self::getDb($key)->exec('ROLLBACK TO SAVEPOINT trans'.($level + 1));
+
+            \Baogg\Logger::err("DbPlus beginTransaction rollBack=".($level + 1)."; key={$key}", __FILE__, __LINE__);
             return true;
         }
+
+
+        \Baogg\Logger::err("DbPlus beginTransaction rollBack=".($level + 1)." key={$key}", __FILE__, __LINE__);
         return self::getDb($key)->rollback();
     }
 
@@ -175,7 +202,7 @@ class Db
 
         $c  = \Baogg\App::getSettings();
 
-        if(!isset($c['settings']['db'][$key]['prefix'])) {
+        if (!isset($c['settings']['db'][$key]['prefix'])) {
             throw new \Exception("Please cofig db key {$key}!");
         }
 
@@ -189,7 +216,7 @@ class Db
         /* if($key == 'baogg' || !$key){
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
-        if(!isset($c['settings']['db'][$key]['driver'])) {
+        if (!isset($c['settings']['db'][$key]['driver'])) {
             throw new \Exception("Please cofig db key {$key}!");
         }
 
@@ -212,7 +239,7 @@ class Db
              echo __FILE__.__LINE__.'<pre>';var_dump($c['settings']['db'][$key]['driver']);exit;
          }*/
 
-        if(!isset($c['settings']['db'][$key]['driver'])) {
+        if (!isset($c['settings']['db'][$key]['driver'])) {
             throw new \Exception("Please cofig db key {$key}!");
         }
 

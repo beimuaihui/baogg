@@ -175,7 +175,7 @@ class Table
         //error_log(__FILE__.__LINE__." sub=".var_export($arr_sub_where, true));
         //$arr_where[] = $arr_sub_where['where'];
         //$arr_where_bind = array_merge($arr_where_bind,$arr_sub_where['bind']);
-        if($arr_sub_where['where']) {
+        if ($arr_sub_where['where']) {
             $select->where($arr_sub_where['where']);
         }
 
@@ -754,7 +754,7 @@ class Table
         foreach ((array)$rs as $v) {
             //need to update data
             $arr_update  = array();
-            foreach ($arr as  $col => $val) {
+            foreach ($arr as $col => $val) {
                 if ($val  != $v[$col]) {
                     $arr_update[$col] = $val;
                 }
@@ -958,10 +958,6 @@ class Table
         return $this->getRow(array($this->_primary => $id), array(), array(), $cols);
     }
 
-    public function updateToByID($arr = array(), $id = 0)
-    {
-        return $this->updateTo($arr, array($this->_primary => $id));
-    }
 
 
     /**
@@ -1036,6 +1032,53 @@ class Table
         return $this;
     }
 
+    public function getDb()
+    {
+        return $this->_db;
+    }
+
+
+    public function beginTransaction()
+    {
+        return \Baogg\Db::beginTransaction($this->_db_key);
+        /*
+        if (!$this->_db->inTransaction()) {
+            return $this->_db->beginTransaction($this->_db_key);
+        } else {
+            return true; //already in transaction
+        }
+        */
+
+    }
+
+    public function commit()
+    {
+        return \Baogg\Db::commit($this->_db_key);
+        /*
+        if ($this->_db->inTransaction()) {
+        return $this->_db->commit($this->_db_key);
+        } else {
+            return true; //not in transaction,so no need to commit
+        }
+        */
+    }
+
+    public function rollBack()
+    {
+        return \Baogg\Db::rollBack($this->_db_key);
+        /*
+          if ($this->_db->inTransaction()) {
+          return $this->_db->rollBack($this->_db_key);
+          } else {
+              return true; //not in transaction,so no need to commit
+          }
+        */
+    }
+
+    public function updateToByID($arr = array(), $id = 0)
+    {
+        return $this->updateTo($arr, array($this->_primary => $id));
+    }
 
     /**
      * return primary ids
@@ -1052,29 +1095,12 @@ class Table
     }
 
 
-    public function beginTransaction()
-    {
-        return $this->_db->beginTransaction();
-    }
-    public function commit()
-    {
-        return $this->_db->commit();
-    }
-    public function rollback()
-    {
-        return $this->_db->rollback();
-    }
 
     public function getDbName()
     {
         return \Baogg\Db::getDbName($this->_db_key);
     }
 
-
-    public function getDb()
-    {
-        return $this->_db;
-    }
 
 
     /**
@@ -1210,7 +1236,7 @@ class Table
         $mb_strlen = mb_strlen($string);
         while ($mb_strlen) { //循环把字符串变为数组
             $strarr[] = mb_substr($string, 0, 1, 'utf8');
-            $string = mb_substr($string, 1, $mb_strlen, 'utf8');
+            $string = mb_substr($string, 1, $mb_strlen - 1, 'utf8');
             $mb_strlen = mb_strlen($string);
         }
         $strlen = count($strarr);
@@ -1224,7 +1250,7 @@ class Table
         for ($i = $begin; $i <= $end; $i++) {
             $strarr[$i] = $re;
         }
-        if ($begin >= $end || $begin >= $last || $end > $last) {
+        if ($begin > $end || $begin > $last || $end > $last) {
             return '*';
         }
         return implode('', $strarr);
@@ -1255,7 +1281,7 @@ class Table
         static $instance = [];
         $called_class = get_called_class();
 
-        if(!isset($instance[ $called_class ])) {
+        if (!isset($instance[ $called_class ])) {
             $instance[$called_class] = new $called_class();
         }
 
