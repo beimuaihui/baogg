@@ -168,6 +168,12 @@ class Db
         return $level >= 0;
     }
 
+    /**
+     * commit transaction,don't add extra code just after this in try block
+     *
+     * @param string $key
+     * @return bool
+     */
     public static function commit($key = '')
     {
         $level = self::DecreTransLevel($key);
